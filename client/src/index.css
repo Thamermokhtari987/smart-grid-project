@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-color: #F5F7FB;
+    --text-color: #0F172A;
+    --card-bg: #FFFFFF;
+    --border-color: #E2E8F0;
+  }
+
+  .dark {
+    --bg-color: #0B111E;
+    --text-color: #F8FAFC;
+    --card-bg: #101B2D;
+    --border-color: #1E293B;
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
+  }
+}
+
+/* RTL Arabic typography and alignment */
+[dir="rtl"] {
+  font-family: 'Cairo', 'Tajawal', -apple-system, sans-serif;
+  text-align: right;
+}
+
+[dir="rtl"] .rtl-mirror {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .font-mono {
+  font-family: 'JetBrains Mono', monospace;
+  direction: ltr;
+  display: inline-block;
+}
+
+/* Custom modern scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94A3B8;
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748B;
+}
+
+/* Energy pulse animations */
+@keyframes flowPulse {
+  0% { stroke-dashoffset: 24; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.animate-flow {
+  stroke-dasharray: 6 6;
+  animation: flowPulse 1.2s linear infinite;
+}
+
+.animate-flow-reverse {
+  stroke-dasharray: 6 6;
+  animation: flowPulse 1.2s linear infinite reverse;
+}
