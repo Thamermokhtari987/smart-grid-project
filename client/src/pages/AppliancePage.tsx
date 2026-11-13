@@ -132,10 +132,9 @@ export const AppliancePage: React.FC = () => {
     intensity: number
   ) => {
     try {
-      const result = await api.simulateApplianceAging({
-        applianceId,
-        years,
-        degradationRate: degRate,
+      const result = await api.simulateApplianceAging(applianceId, {
+        simulationYears: years,
+        annualEfficiencyDegradation: degRate,
         maintenanceCondition: condition,
         usageIntensity: intensity,
       });

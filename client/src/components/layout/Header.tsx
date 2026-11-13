@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { useSystem } from '../../context/SystemContext';
 import { useTheme } from '../../context/ThemeContext';
-import { useLanguage } from '../../context/LanguageContext';
+import { useLanguage, Language } from '../../context/LanguageContext';
 import { LanguageSelector } from '../ui/LanguageSelector';
 
 interface HeaderProps {

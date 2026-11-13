@@ -56,4 +56,8 @@ async function startServer() {
         process.exit(1);
     }
 }
-startServer();
+// In local development or standalone server, start the HTTP server
+if (!process.env.VERCEL) {
+    startServer();
+}
+exports.default = app;

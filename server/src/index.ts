@@ -61,4 +61,9 @@ async function startServer() {
   }
 }
 
-startServer();
+// In local development or standalone server, start the HTTP server
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+export default app;
