@@ -21,6 +21,19 @@ app.use('/api', api_js_1.default);
 app.get('/health', (_req, res) => {
     res.json({ status: 'HEALTHY', timestamp: new Date() });
 });
+// Root fallback endpoint for server
+app.get('/', (_req, res) => {
+    if (clientDistPath) {
+        return res.sendFile(path_1.default.join(clientDistPath, 'index.html'));
+    }
+    res.json({
+        status: 'ONLINE',
+        service: 'SMARTGRID Server',
+        api: '/api',
+        health: '/health',
+        timestamp: new Date()
+    });
+});
 // Serve frontend static files if built
 const possibleClientPaths = [
     path_1.default.resolve(process.cwd(), '../client/dist'),
