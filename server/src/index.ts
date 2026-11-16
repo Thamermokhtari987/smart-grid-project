@@ -22,20 +22,6 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'HEALTHY', timestamp: new Date() });
 });
 
-// Root fallback endpoint for server
-app.get('/', (_req, res) => {
-  if (clientDistPath) {
-    return res.sendFile(path.join(clientDistPath, 'index.html'));
-  }
-  res.json({
-    status: 'ONLINE',
-    service: 'SMARTGRID Server',
-    api: '/api',
-    health: '/health',
-    timestamp: new Date()
-  });
-});
-
 // Serve frontend static files if built
 const possibleClientPaths = [
   path.resolve(process.cwd(), '../client/dist'),
@@ -50,6 +36,20 @@ for (const p of possibleClientPaths) {
     break;
   }
 }
+
+// Root fallback endpoint for server
+app.get('/', (_req, res) => {
+  if (clientDistPath) {
+    return res.sendFile(path.join(clientDistPath, 'index.html'));
+  }
+  res.json({
+    status: 'ONLINE',
+    service: 'SMARTGRID Server',
+    api: '/api',
+    health: '/health',
+    timestamp: new Date()
+  });
+});
 
 if (clientDistPath) {
   app.use(express.static(clientDistPath));
