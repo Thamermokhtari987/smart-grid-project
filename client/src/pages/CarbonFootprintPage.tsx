@@ -126,7 +126,7 @@ export const CarbonFootprintPage: React.FC = () => {
             Monthly CO₂ Emissions Avoided (kg CO₂)
           </h3>
           <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={monthlyFootprintData}>
                 <defs>
                   <linearGradient id="co2Grad" x1="0" y1="0" x2="0" y2="1">

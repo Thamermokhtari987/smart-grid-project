@@ -291,7 +291,7 @@ export const BatteryPage: React.FC = () => {
             </div>
           </div>
           <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={300}>
               <LineChart data={socHistory}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
                 <XAxis dataKey="time" stroke="#94A3B8" fontSize={11} />
@@ -324,7 +324,7 @@ export const BatteryPage: React.FC = () => {
             </div>
           </div>
           <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={300}>
               <BarChart data={comparisonData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
                 <XAxis dataKey="name" stroke="#94A3B8" fontSize={11} />

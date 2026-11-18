@@ -245,7 +245,7 @@ export const AnalyticsReportsPage: React.FC = () => {
             1. Daily Consumption Profile
           </h3>
           <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={300}>
               <LineChart data={historicalData.slice(-30)}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
                 <XAxis dataKey="formattedDate" stroke="#94A3B8" fontSize={11} />
@@ -263,7 +263,7 @@ export const AnalyticsReportsPage: React.FC = () => {
             2. Monthly Consumption Aggregation
           </h3>
           <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={300}>
               <BarChart data={monthlyCostEvolution}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
                 <XAxis dataKey="month" stroke="#94A3B8" fontSize={11} />
@@ -281,7 +281,7 @@ export const AnalyticsReportsPage: React.FC = () => {
             3. Solar Production vs Consumption
           </h3>
           <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={300}>
               <LineChart data={historicalData.slice(-24)}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
                 <XAxis dataKey="formattedTime" stroke="#94A3B8" fontSize={11} />
@@ -301,7 +301,7 @@ export const AnalyticsReportsPage: React.FC = () => {
             4. Comparative Zone Demands (P1 to P4)
           </h3>
           <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={300}>
               <BarChart data={zones.map(z => ({ name: `Zone ${z.zoneNumber}`, value: z.currentConsumption, color: z.color }))}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
                 <XAxis dataKey="name" stroke="#94A3B8" fontSize={11} />
@@ -323,7 +323,7 @@ export const AnalyticsReportsPage: React.FC = () => {
             5. Isolated Zone History ({zones.find(z => z.id === selectedZone)?.name || 'All Zones'})
           </h3>
           <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={historicalData.slice(-30)}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
                 <XAxis dataKey="formattedDate" stroke="#94A3B8" fontSize={11} />
@@ -341,7 +341,7 @@ export const AnalyticsReportsPage: React.FC = () => {
             6. Appliance Daily Consumption Breakdown
           </h3>
           <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={300}>
               <BarChart data={applianceBreakdown} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
                 <XAxis type="number" stroke="#94A3B8" fontSize={11} unit=" kWh" />
@@ -359,7 +359,7 @@ export const AnalyticsReportsPage: React.FC = () => {
             7. Storage Charge &amp; Discharge History
           </h3>
           <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={historicalData.slice(-24)}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
                 <XAxis dataKey="formattedTime" stroke="#94A3B8" fontSize={11} />
@@ -377,7 +377,7 @@ export const AnalyticsReportsPage: React.FC = () => {
             8. Overall Energy Balance Breakdown
           </h3>
           <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
                   data={[
@@ -441,7 +441,7 @@ export const AnalyticsReportsPage: React.FC = () => {
             10. Monthly Financial Energy Savings (TND)
           </h3>
           <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={300}>
               <BarChart data={monthlyCostEvolution}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
                 <XAxis dataKey="month" stroke="#94A3B8" fontSize={11} />

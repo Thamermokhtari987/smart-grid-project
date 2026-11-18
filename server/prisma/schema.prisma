@@ -8,12 +8,28 @@ datasource db {
 }
 
 model User {
+  id                 String    @id @default(cuid())
+  email              String    @unique
+  passwordHash       String
+  name               String
+  phone              String
+  address            String
+  city               String
+  customerType       String    @default("RESIDENTIAL")
+  contractedPowerKva Float     @default(4.0)
+  role               String    @default("CLIENT")
+  sessions           Session[]
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model Session {
   id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  role      String   @default("ADMIN")
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model Zone {

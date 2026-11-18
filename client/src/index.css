@@ -65,6 +65,14 @@
 }
 
 /* Energy pulse animations */
+
+/* ---- Chart wrapper for Recharts ---- */
+.chart-wrapper {
+  min-height: 250px;
+  width: 100%;
+}
+
+
 @keyframes flowPulse {
   0% { stroke-dashoffset: 24; }
   100% { stroke-dashoffset: 0; }

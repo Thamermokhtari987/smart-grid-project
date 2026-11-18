@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
@@ -21,6 +21,41 @@ import { AlertsPage } from './pages/AlertsPage';
 import { CarbonFootprintPage } from './pages/CarbonFootprintPage';
 import { MonthlyReportsPage } from './pages/MonthlyReportsPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { AuthPage, clearAuth } from './pages/AuthPage';
+
+function ProtectedClientRoute({ children }: { children: React.ReactNode }) {
+  const [status, setStatus] = useState<'loading' | 'authorized' | 'unauthorized'>('loading');
+
+  useEffect(() => {
+    const token = localStorage.getItem('smartgrid_token');
+    if (!token) {
+      setStatus('unauthorized');
+      return;
+    }
+
+    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('Session expired');
+        const data = await response.json();
+        if (data.user?.role !== 'CLIENT') throw new Error('Client access required');
+        setStatus('authorized');
+      })
+      .catch(() => {
+        clearAuth();
+        setStatus('unauthorized');
+      });
+  }, []);
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F5F7FB] dark:bg-[#09111F]">
+        <div className="w-10 h-10 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
+      </div>
+    );
+  }
+  if (status === 'unauthorized') return <Navigate to="/auth" replace />;
+  return <>{children}</>;
+}
 
 function MainLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -76,7 +111,17 @@ export function App() {
       <LanguageProvider>
         <SystemProvider>
           <BrowserRouter>
-            <MainLayout />
+            <Routes>
+              <Route path="/auth" element={<AuthPage />} />
+              <Route
+                path="/*"
+                element={
+                  <ProtectedClientRoute>
+                    <MainLayout />
+                  </ProtectedClientRoute>
+                }
+              />
+            </Routes>
           </BrowserRouter>
         </SystemProvider>
       </LanguageProvider>

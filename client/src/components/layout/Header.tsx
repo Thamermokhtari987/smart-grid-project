@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   Clock,
   Sun,
@@ -12,6 +12,7 @@ import {
   ShieldAlert,
   SlidersHorizontal,
   Languages,
+  LogOut,
 } from 'lucide-react';
 import { useSystem } from '../../context/SystemContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -23,6 +24,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ sidebarCollapsed }) => {
+  const navigate = useNavigate();
   const { mode, updateOperatingMode, unreadAlertsCount, recentAlerts, markAlertRead } = useSystem();
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage, t, isRtl } = useLanguage();
@@ -31,6 +33,17 @@ export const Header: React.FC<HeaderProps> = ({ sidebarCollapsed }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showModeDropdown, setShowModeDropdown] = useState(false);
   const [showLangDropdown, setShowLangDropdown] = useState(false);
+
+  const signOut = async () => {
+    const token = localStorage.getItem('smartgrid_token');
+    await fetch('/api/auth/signout', {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }).catch(() => undefined);
+    localStorage.removeItem('smartgrid_token');
+    localStorage.removeItem('smartgrid_user');
+    navigate('/auth', { replace: true });
+  };
 
   // Live ticking clock
   useEffect(() => {
@@ -89,6 +102,15 @@ export const Header: React.FC<HeaderProps> = ({ sidebarCollapsed }) => {
         <div className="flex items-center gap-3">
           {/* Reusable Language Selector */}
           <LanguageSelector />
+
+          <button
+            type="button"
+            onClick={signOut}
+            title="Se deconnecter"
+            className="p-2 rounded-xl text-slate-500 dark:text-slate-300 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+          >
+            <LogOut className="w-5 h-5" />
+          </button>
 
           {/* Operating Mode Dropdown */}
           <div className="relative">

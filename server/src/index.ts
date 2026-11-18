@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
 import apiRouter from './routes/api.js';
+import authRouter from './routes/auth.js';
 import { seedDatabase } from './seed.js';
 
 dotenv.config();
@@ -16,6 +17,7 @@ app.use(express.json());
 
 // API Routes
 app.use('/api', apiRouter);
+app.use('/api/auth', authRouter);
 
 // Health check endpoint
 app.get('/health', (_req, res) => {
