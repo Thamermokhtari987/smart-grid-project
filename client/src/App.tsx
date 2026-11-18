@@ -36,7 +36,9 @@ function ProtectedClientRoute({ children }: { children: React.ReactNode }) {
     fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
       .then(async (response) => {
         if (!response.ok) throw new Error('Session expired');
-        const data = await response.json();
+        const text = await response.text();
+        if (!text) throw new Error('Empty session response');
+        const data = JSON.parse(text);
         if (data.user?.role !== 'CLIENT') throw new Error('Client access required');
         setStatus('authorized');
       })

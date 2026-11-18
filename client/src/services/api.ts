@@ -44,6 +44,35 @@ export const api = {
     return res.json() as Promise<Zone>;
   },
 
+  createZone: async (data: {
+    name: string;
+    priority: Zone['priority'];
+    priorityLevel: number;
+    defaultConsumption: number;
+    maxLimit: number;
+    color: string;
+  }) => {
+    const res = await fetch(`${API_BASE}/zones`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const error = await res.json().catch(() => null);
+      throw new Error(error?.error || 'Failed to create zone');
+    }
+    return res.json() as Promise<Zone>;
+  },
+
+  deleteZone: async (id: string) => {
+    const res = await fetch(`${API_BASE}/zones/${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const error = await res.json().catch(() => null);
+      throw new Error(error?.error || 'Failed to delete zone');
+    }
+    return res.json() as Promise<{ success: boolean; deletedId: string }>;
+  },
+
   // Appliances
   getAppliances: async (zoneId?: string) => {
     const url = zoneId ? `${API_BASE}/appliances?zoneId=${zoneId}` : `${API_BASE}/appliances`;

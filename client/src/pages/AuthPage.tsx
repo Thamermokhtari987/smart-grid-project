@@ -39,6 +39,19 @@ export function clearAuth() {
   localStorage.removeItem('smartgrid_user');
 }
 
+async function readJsonResponse(response: Response) {
+  const text = await response.text();
+  if (!text) {
+    throw new Error('Le serveur a retourne une reponse vide.');
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error('Le serveur n’a pas retourne une reponse valide.');
+  }
+}
+
 export const AuthPage: React.FC = () => {
   const navigate = useNavigate();
   const [mode, setMode] = useState<AuthMode>('signup');
@@ -73,7 +86,7 @@ export const AuthPage: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-      const data = await response.json();
+      const data = await readJsonResponse(response);
       if (!response.ok) throw new Error(data.error || 'Impossible de continuer.');
       saveAuth(data.token, data.user);
       navigate('/', { replace: true });

@@ -11,6 +11,8 @@ import {
   Tv,
   Eye,
   TrendingUp,
+  Plus,
+  Trash2,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -33,6 +35,16 @@ export const ZonesPage: React.FC = () => {
   const [selectedZone, setSelectedZone] = useState<Zone | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [actionError, setActionError] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [newName, setNewName] = useState('');
+  const [newPriority, setNewPriority] = useState<Zone['priority']>('Medium');
+  const [newPriorityLevel, setNewPriorityLevel] = useState(3);
+  const [newDefaultConsumption, setNewDefaultConsumption] = useState(5);
+  const [newMaxLimit, setNewMaxLimit] = useState(8);
+  const [newColor, setNewColor] = useState('#3B82F6');
 
   // Edit form state
   const [editName, setEditName] = useState('');
@@ -96,6 +108,55 @@ export const ZonesPage: React.FC = () => {
     }
   };
 
+  const resetAddForm = () => {
+    setNewName('');
+    setNewPriority('Medium');
+    setNewPriorityLevel(3);
+    setNewDefaultConsumption(5);
+    setNewMaxLimit(8);
+    setNewColor('#3B82F6');
+    setActionError('');
+  };
+
+  const handleCreateZone = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    setActionError('');
+    try {
+      const created = await api.createZone({
+        name: newName,
+        priority: newPriority,
+        priorityLevel: Number(newPriorityLevel),
+        defaultConsumption: Number(newDefaultConsumption),
+        maxLimit: Number(newMaxLimit),
+        color: newColor,
+      });
+      setZones((current) => [...current, created].sort((a, b) => a.zoneNumber - b.zoneNumber));
+      setIsAddModalOpen(false);
+      resetAddForm();
+    } catch (err: any) {
+      setActionError(err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteZone = async (zone: Zone) => {
+    const confirmed = window.confirm(
+      `Delete "${zone.name}"? This will also remove its connected appliances.`
+    );
+    if (!confirmed) return;
+
+    setActionError('');
+    try {
+      await api.deleteZone(zone.id);
+      setZones((current) => current.filter((item) => item.id !== zone.id));
+      setAppliances((current) => current.filter((item) => item.zoneId !== zone.id));
+    } catch (err: any) {
+      setActionError(err.message);
+    }
+  };
+
   const handleOpenView = (zone: Zone) => {
     setSelectedZone(zone);
     setIsViewModalOpen(true);
@@ -138,9 +199,21 @@ export const ZonesPage: React.FC = () => {
             {t('zones_subtitle')}
           </p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 text-xs text-blue-600 dark:text-cyan-400 font-medium">
-          <ShieldAlert className="w-4 h-4" />
-          <span>{t('zone_1_desc')}</span>
+        <div className="flex items-center gap-2">
+          {actionError && (
+            <span className="text-xs font-semibold text-rose-600">{actionError}</span>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              resetAddForm();
+              setIsAddModalOpen(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-600/20"
+          >
+            <Plus className="w-4 h-4" />
+            Add Zone
+          </button>
         </div>
       </div>
 
@@ -287,6 +360,14 @@ export const ZonesPage: React.FC = () => {
                 >
                   <Eye className="w-3.5 h-3.5" />
                 </button>
+
+                <button
+                  onClick={() => handleDeleteZone(zone)}
+                  className="p-2 rounded-xl text-rose-500 hover:text-white bg-rose-500/10 hover:bg-rose-500 border border-rose-500/20 transition-colors"
+                  title="Delete zone"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
           );
@@ -327,6 +408,106 @@ export const ZonesPage: React.FC = () => {
           </ResponsiveContainer>
         </div>
       </div>
+
+      {/* Add Zone Modal */}
+      <Modal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        title="Add New Zone"
+        subtitle="Create a new managed energy zone"
+      >
+        <form onSubmit={handleCreateZone} className="space-y-4">
+          {actionError && (
+            <div className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-300">
+              {actionError}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Zone name</label>
+            <input
+              type="text"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              required
+              placeholder="e.g. Workshop Zone"
+              className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Priority</label>
+              <select
+                value={newPriority}
+                onChange={(e) => {
+                  const priority = e.target.value as Zone['priority'];
+                  setNewPriority(priority);
+                  setNewPriorityLevel(priority === 'Critical' ? 1 : priority === 'High' ? 2 : priority === 'Medium' ? 3 : 4);
+                }}
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white"
+              >
+                <option value="Critical">Critical</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Color</label>
+              <input
+                type="color"
+                value={newColor}
+                onChange={(e) => setNewColor(e.target.value)}
+                className="w-full h-9 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-1"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Consumption (kW)</label>
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                value={newDefaultConsumption}
+                onChange={(e) => setNewDefaultConsumption(Number(e.target.value))}
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Power limit (kW)</label>
+              <input
+                type="number"
+                min="0.1"
+                step="0.1"
+                value={newMaxLimit}
+                onChange={(e) => setNewMaxLimit(Number(e.target.value))}
+                required
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white"
+              />
+            </div>
+          </div>
+
+          <div className="pt-4 flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setIsAddModalOpen(false)}
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              {t('cancel')}
+            </button>
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-xs font-bold"
+            >
+              {isSaving ? 'Adding...' : 'Add Zone'}
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Edit Zone Modal */}
       <Modal

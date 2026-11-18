@@ -58,6 +58,31 @@ router.get('/system/status', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+router.delete('/zones/:id', async (req, res) => {
+    try {
+        const zone = await db_js_1.prisma.zone.findUnique({
+            where: { id: req.params.id },
+            include: { appliances: true },
+        });
+        if (!zone) {
+            return res.status(404).json({ error: 'Zone not found.' });
+        }
+        await db_js_1.prisma.zone.delete({ where: { id: zone.id } });
+        await db_js_1.prisma.distributionDecision.create({
+            data: {
+                situation: 'DISCONNECTED',
+                reason: 'Zone configuration change',
+                action: `Zone "${zone.name}" was deleted with ${zone.appliances.length} connected appliance(s).`,
+                affectedEntity: zone.name,
+                mode: 'MANUAL',
+            },
+        });
+        res.json({ success: true, deletedId: zone.id });
+    }
+    catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 // ==========================================
 // 2. ZONES MANAGEMENT
 // ==========================================
@@ -70,6 +95,52 @@ router.get('/zones', async (_req, res) => {
             orderBy: { zoneNumber: 'asc' }
         });
         res.json(zones);
+    }
+    catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+router.post('/zones', async (req, res) => {
+    try {
+        const { name, priority = 'Medium', priorityLevel = 3, defaultConsumption = 0, maxLimit = 10, isConnected = true, color = '#3B82F6', } = req.body;
+        if (!name || String(name).trim().length < 2) {
+            return res.status(400).json({ error: 'Zone name is required.' });
+        }
+        const defaultLoad = Number(defaultConsumption);
+        const limit = Number(maxLimit);
+        if (!Number.isFinite(defaultLoad) || defaultLoad < 0) {
+            return res.status(400).json({ error: 'Default consumption must be a positive number.' });
+        }
+        if (!Number.isFinite(limit) || limit <= 0) {
+            return res.status(400).json({ error: 'Maximum limit must be greater than zero.' });
+        }
+        const highestZone = await db_js_1.prisma.zone.findFirst({
+            orderBy: { zoneNumber: 'desc' },
+            select: { zoneNumber: true },
+        });
+        const zone = await db_js_1.prisma.zone.create({
+            data: {
+                zoneNumber: (highestZone?.zoneNumber || 0) + 1,
+                name: String(name).trim(),
+                priority: String(priority),
+                priorityLevel: Number(priorityLevel),
+                defaultConsumption: defaultLoad,
+                currentConsumption: defaultLoad,
+                maxLimit: limit,
+                isConnected: Boolean(isConnected),
+                color: String(color),
+            },
+        });
+        await db_js_1.prisma.distributionDecision.create({
+            data: {
+                situation: 'NORMAL',
+                reason: 'Zone configuration change',
+                action: `Zone "${zone.name}" was created.`,
+                affectedEntity: zone.name,
+                mode: 'MANUAL',
+            },
+        });
+        res.status(201).json(zone);
     }
     catch (error) {
         res.status(500).json({ error: error.message });

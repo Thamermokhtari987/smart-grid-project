@@ -16,8 +16,8 @@ app.use(cors());
 app.use(express.json());
 
 // API Routes
-app.use('/api', apiRouter);
 app.use('/api/auth', authRouter);
+app.use('/api', apiRouter);
 
 // Health check endpoint
 app.get('/health', (_req, res) => {
