@@ -1,7 +1,54 @@
 import { prisma } from './db.js';
+import crypto from 'crypto';
+import { promisify } from 'util';
+
+const scryptAsync = promisify(crypto.scrypt);
+
+async function hashPassword(password: string): Promise<string> {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const derivedKey = await scryptAsync(password, salt, 64) as Buffer;
+  return `${salt}:${derivedKey.toString('hex')}`;
+}
 
 export async function seedDatabase() {
   console.log('🌱 Checking / Seeding database...');
+
+  // Demo/client administrator account
+  const adminEmail = 'admin@gmail.com';
+  const adminPasswordHash = await hashPassword('admin1234');
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: adminEmail },
+  });
+
+  if (!existingAdmin) {
+    await prisma.user.create({
+      data: {
+        name: 'Administrator',
+        email: adminEmail,
+        phone: '00000000',
+        address: 'SMARTGRID',
+        city: 'Tunis',
+        passwordHash: adminPasswordHash,
+        customerType: 'COMMERCIAL',
+        contractedPowerKva: 4,
+        role: 'CLIENT',
+      },
+    });
+  } else {
+    await prisma.user.update({
+      where: { email: adminEmail },
+      data: {
+        name: existingAdmin.name || 'Administrator',
+        phone: existingAdmin.phone || '00000000',
+        address: existingAdmin.address || 'SMARTGRID',
+        city: existingAdmin.city || 'Tunis',
+        passwordHash: adminPasswordHash,
+        customerType: existingAdmin.customerType || 'COMMERCIAL',
+        contractedPowerKva: existingAdmin.contractedPowerKva || 4,
+        role: 'CLIENT',
+      },
+    });
+  }
 
   // 1. Settings
   const existingSettings = await prisma.systemSettings.findUnique({
