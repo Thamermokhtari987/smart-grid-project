@@ -33,7 +33,9 @@ function ProtectedClientRoute({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+    fetch('/api/auth/me', {
+      headers: { Authorization: 'Bearer ' + token },
+    })
       .then(async (response) => {
         if (!response.ok) throw new Error('Session expired');
         const text = await response.text();

@@ -91,7 +91,11 @@ export const AuthPage: React.FC = () => {
       saveAuth(data.token, data.user);
       navigate('/', { replace: true });
     } catch (err: any) {
-      setError(err.message);
+      setError(
+        err instanceof TypeError
+          ? 'Serveur indisponible. Verifiez que le serveur backend est lance sur le port 5000.'
+          : err.message
+      );
     } finally {
       setLoading(false);
     }
